@@ -11,8 +11,32 @@ import {
   Text,
   TransformControls,
 } from "@react-three/drei"
+import { button, useControls } from "leva"
+import { Perf } from "r3f-perf"
 
 export default function App() {
+  const { perfVisible } = useControls("perfomance", {
+    perfVisible: true,
+  })
+  const { position, color } = useControls("sphere", {
+    position: {
+      value: { x: -2, y: 0 },
+      joystick: "invertY",
+    },
+    color: "#ff0000",
+    hello: button(() => console.log("hello")),
+    choice: { options: ["a", "b", "c"] },
+  })
+
+  const { scale } = useControls("box", {
+    scale: {
+      value: 1,
+      min: 1,
+      max: 5,
+      step: 0.01,
+    },
+  })
+
   const { camera, gl } = useThree()
   const groupRef = useRef()
   const boxRef = useRef()
@@ -31,6 +55,7 @@ export default function App() {
     <>
       {/* logic controls */}
       <OrbitControls makeDefault />
+      {perfVisible && <Perf position="top-left" />}
 
       {/* lights */}
       <ambientLight intensity={0.5} />
@@ -40,15 +65,15 @@ export default function App() {
       <group ref={groupRef}>
         {/* <TransformControls object={boxRef} mode={"translate"} /> */}
         <PivotControls anchor={[0, 0, 0]} depthTest={false} scale={1}>
-          <mesh ref={boxRef} scale={1.5} position-x={2}>
+          <mesh ref={boxRef} scale={scale} position-x={2}>
             <boxGeometry />
             <meshStandardMaterial color={"mediumpurple"} />
           </mesh>
         </PivotControls>
         <PivotControls anchor={[0, 0, 0]} depthTest={false} scale={1}>
-          <mesh ref={sphereRef} position={[-2, 0, 0]}>
+          <mesh ref={sphereRef} position={[position.x, position.y, 0]}>
             <sphereGeometry args={[1, 32, 32]} />
-            <meshStandardMaterial color={"skyblue"} />
+            <meshStandardMaterial color={color} />
             <Html
               position={[0, 1.5, 0]}
               wrapperClass="label"
